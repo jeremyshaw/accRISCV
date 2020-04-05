@@ -1,0 +1,17 @@
+/*
+!/*.gitignore
+##
+!*.qpf
+!*.qsf
+!*.qws
+!*.bdf
+!*.vhd
+!*.v
+!*.ptf
+!*.bsf
+!**/class.ptf
+!*.tbd
+!*.sof
+## tbd
+
+!*.tcl
