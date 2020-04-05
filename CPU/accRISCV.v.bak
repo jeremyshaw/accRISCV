@@ -1,0 +1,144 @@
+module accRISCV(
+    input clock, reset,
+    output [7:0] inst,
+    output reg [7:0] acc,
+    output reg [4:0] x,
+    output reg sr
+    );
+    
+    reg [5:0] pp; //program pointer, points to next instruction
+    reg [2:0] opcode; //originally 7:0
+    reg [7:0] operand; //originally 15:0
+    reg [7:0] result;
+    assign inst = {opcode, operand[4:0]};
+    wire [4:0] imAddress  = pp[5:1];
+    wire [4:0] dmAddress = operand[4:0];
+    
+    (*ramstyle = "M512" *) reg [7:0] IM[0:63]; //instruction memory setup as 64 x 8
+    (*ramstyle = "M512" *) reg [7:0] DM[0:63]; //data memory
+    
+    parameter
+        NOP = 0,
+        LB = 1,
+        LH = 2,
+        LW = 3,
+        LBU = 4,
+        SB = 5,
+        SH = 6;
+		  SW = 7;
+		  SLL = 8;
+		  SLLI = 9
+		  SRL = 10;
+		  SRLI = 11;
+		  SRA = 12;
+		  SRAI = 13;
+		  ADD = 14;
+		  ADDI = 15;
+		  SUB = 16;
+		  LUI = 17;
+		  AUIPC = 18;
+		  XOR = 19;
+		  XORI = 20;
+		  OR = 21;
+		  ORI = 22;
+		  AND = 23;
+		  ANDI = 24;
+		  SLT = 25;
+		  SLTI = 26;
+		  SLTU = 27;
+		  SLTIU = 28;
+		  BEQ = 29;
+		  BNE = 30;
+		  BLT = 31;
+		  BGE = 32;
+		  BLTU = 33;
+		  BGEU = 34;
+		  JAL = 35;
+		  JALR = 36;
+		  FENCE = 37;
+		  FENCE.I = 38;
+		  SCALL = 39;
+		  SBREAK = 40;
+		  RDCYCLE = 41;
+		  RDCYCLEH = 42;
+		  RDTIME = 43;
+		  RDTIMEH = 44;
+		  RDINSTRET = 45;
+		  RDINSTRETH = 46;
+    
+    //initialize IM with machine instructions
+    initial
+    begin //note, memory is organized as 31x8?
+        IM[0] = 8'h3D; //LD -3
+        IM[1] = 8'h60; //ST(X) X is 00000
+        IM[2] = 8'h3A; //LD -6
+        IM[3] = 8'h61; //ST(Y) Y is 00001
+        IM[4] = 8'h80; //ADD(X)
+        IM[5] = 8'h63; //ST(T) T is 00011
+        IM[6] = 8'h3B; //LD -5
+        IM[7] = 8'h62; //ST(Z) Z is 00010
+        IM[8] = 8'h3F; //LD -1
+        IM[9] = 8'hA2; //XOR(Z)
+        IM[10] = 8'h64; //ST(Z2) Z2 is 00100
+        IM[11] = 8'h21; //LD 1
+        IM[12] = 8'h84; //ADD(Z2)
+        IM[13] = 8'h64; //ST(Z2)
+        IM[14] = 8'h43; //LD(T)
+        IM[15] = 8'h84; //ADD(Z2)
+        IM[16] = 8'h63; //ST(T)
+        IM[17] = 8'h00; //NOP
+        IM[18] = 8'h00; //NOP
+    end
+    
+    //read instruction memory
+    always@(*)
+    begin
+        opcode <= IM[imAddress][7:5];
+        operand[4:0] <= IM[imAddress][4:0];
+        operand[7:5] <= {3{operand[4]}}; //sign extend 8 bit to 16 bit
+    end
+    
+    //decode and execute
+    always@(*)
+    begin
+        case(opcode)
+            NOP: result = 8'hx;
+            LD_I: result = operand;
+            LD_D: result = DM[dmAddress];
+            ST_D: result = acc;
+            ADD_D: result = acc + DM[dmAddress];
+            XOR_D: result = acc ^ DM[dmAddress];
+            JMP_I: result = 8'hx;
+            default: result = 8'hx;
+        endcase
+    end
+        
+    //fetch and writeback
+    always@(posedge clock or posedge reset)
+    begin
+    if(reset == 1)
+        begin
+            pp <= 0;
+            acc <= 0;
+            x <= 0;
+            sr <= 0;
+        end
+    else
+        case(opcode)
+            NOP: pp = pp + 2; //incrementing in bytes, not words
+            LD_I: begin acc <= result; pp <= pp + 2; end
+            LD_D: begin acc <= result; pp <= pp + 2; end
+            ST_D: begin DM[dmAddress] <= result; pp <= pp + 2; end
+            ADD_D: begin acc <= result; pp <= pp + 2; end
+            XOR_D: begin acc <= result; pp <= pp + 2; end
+            JMP_I: begin pp <= operand[4:0]; end            
+        endcase
+    end
+    
+    //print
+    always@(posedge clock)
+    begin
+        $display("Time = %4d PP = %d ACC = %d", $time, pp, $signed(acc));
+        $display("DM0(X)%d DM1(Y)%d DM2(Z)%d DM3(T)%d DM4(Z2)%d", $signed(DM[0]), $signed(DM[1]), $signed(DM[2]), $signed(DM[3]), $signed(DM[4]));
+    end
+endmodule

@@ -1,0 +1,4 @@
+Warning (10273): Verilog HDL warning at accRISCV.v(87): extended using "x" or "z" File: D:/FPGA/accRISCV/CPU/accRISCV.v Line: 87
+Warning (10273): Verilog HDL warning at accRISCV.v(92): extended using "x" or "z" File: D:/FPGA/accRISCV/CPU/accRISCV.v Line: 92
+Warning (10273): Verilog HDL warning at accRISCV.v(93): extended using "x" or "z" File: D:/FPGA/accRISCV/CPU/accRISCV.v Line: 93
+Warning (10268): Verilog HDL information at accRISCV.v(98): always construct contains both blocking and non-blocking assignments File: D:/FPGA/accRISCV/CPU/accRISCV.v Line: 98
