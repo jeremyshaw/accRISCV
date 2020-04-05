@@ -5,8 +5,8 @@
 
 ## Topology
 - top
-- - clkDiv
-- - accRISCV
+ - clkDiv
+ - accRISCV
 
 ## Needs
 - split out registers & ALU from the main accRISCV module
