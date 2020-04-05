@@ -1,0 +1,21 @@
+#-----------------------------------------------------------
+# Vivado v2019.2.1 (64-bit)
+# SW Build 2729669 on Thu Dec  5 04:49:17 MST 2019
+# IP Build 2729494 on Thu Dec  5 07:38:25 MST 2019
+# Start of session at: Sun Apr  5 00:14:54 2020
+# Process ID: 29412
+# Current directory: C:/Users/infin/Desktop/accRISCV/CPU_xil
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent28684 C:\Users\infin\Desktop\accRISCV\CPU_xil\CPU_xil.xpr
+# Log file: C:/Users/infin/Desktop/accRISCV/CPU_xil/vivado.log
+# Journal file: C:/Users/infin/Desktop/accRISCV/CPU_xil\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/infin/Desktop/accRISCV/CPU_xil/CPU_xil.xpr
+update_compile_order -fileset sources_1
+reset_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+open_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 16
+wait_on_run impl_1
